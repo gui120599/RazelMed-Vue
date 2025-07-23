@@ -20,7 +20,7 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Suporte',
-        href: '/dashboard',
+        href: '/',
         icon: Headset,
     },
 ];
