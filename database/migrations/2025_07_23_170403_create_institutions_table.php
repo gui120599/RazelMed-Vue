@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('institutions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
+            $table->string('cnpj')->unique()->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
             $table->softDeletes();

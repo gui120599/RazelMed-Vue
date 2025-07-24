@@ -2,7 +2,7 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItemType } from '@/types';
-import AppearanceTabs from '@/components/AppearanceTabs.vue';
+import AppearanceTabs from '@/components/AppearanceTabsHeader.vue';
 
 withDefaults(
     defineProps<{

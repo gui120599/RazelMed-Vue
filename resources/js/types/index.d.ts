@@ -17,6 +17,18 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface MainNavGroup {
+    title: string
+    url: string
+    icon?: LucideIcon
+    isActive?: boolean
+    items?: {
+        title: string
+        url: string
+    }[]
+}
+
+
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
     quote: { message: string; author: string };

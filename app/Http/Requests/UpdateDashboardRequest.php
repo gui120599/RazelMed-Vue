@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class UpdateDashboardRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class UpdateDashboardRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Gate::allows('manage-platform'); // Apenas Super Admin pode atualizar dashboards
     }
 
     /**
@@ -22,7 +24,10 @@ class UpdateDashboardRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
+            'iframe_link' => ['nullable', 'url', 'max:2048'],
+            'institution_id' => ['required', 'exists:institutions,id'],
+            'icon' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -3,16 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
 
-class StoreInstitutionRequest extends FormRequest
+class StoreUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Gate::allows('manage-platform'); // Apenas Super Admin pode criar instituições
+        return false;
     }
 
     /**
@@ -23,9 +22,7 @@ class StoreInstitutionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:institutions'],
-            'cnpj' => ['nullable', 'string', 'max:18', 'unique:institutions'],
-            'profile_photo' => ['nullable', 'image', 'max:2048'], // 2MB max
+            //
         ];
     }
 }
