@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+
 // Importe o Form Request
 use App\Http\Requests\UpdateUserRequest;
 
@@ -18,12 +19,28 @@ class UserController extends Controller
     public function __construct()
     {
         // Todas as ações deste controller são restritas ao Super Admin
-        $this->middleware(function ($request, $next) {
+        /*$this->middleware(function ($request, $next) {
             if (Gate::denies('manage-platform')) {
                 abort(403, 'Unauthorized action.');
             }
             return $next($request);
-        });
+        });*/
+    }
+
+    /**
+     * Display a listing of the users for the admin panel.
+     */
+    public function indexAdmin(Request $request)
+    {
+        $users = User::with(['institutions', 'accessibleDashboards', 'preferredInstitution'])->paginate(10);
+        $allInstitutions = Institution::all(); // <-- Adicione isso
+        $allDashboards = Dashboard::all(); // <-- Adicione isso
+
+        return Inertia::render('Admin/Users/Index', [
+            'users' => $users,
+            'allInstitutions' => $allInstitutions, // <-- Passe para a página
+            'allDashboards' => $allDashboards,     // <-- Passe para a página
+        ]);
     }
 
     /**
@@ -31,8 +48,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['institutions', 'accessibleDashboards', 'preferredInstitution'])->get();
-        return response()->json($users);
+        /*$users = User::with(['institutions', 'accessibleDashboards', 'preferredInstitution'])->get();
+        return response()->json($users);*/
+
+        // Certifique-se de que as relações estão sendo carregadas
+        $users = User::with(['institutions', 'accessibleDashboards', 'preferredInstitution'])->paginate(10);
+        return Inertia::render('Admin/Users/Index', ['users' => $users]);
     }
 
     /**
@@ -41,6 +62,39 @@ class UserController extends Controller
     public function show(User $user)
     {
         return response()->json($user->load(['institutions', 'accessibleDashboards', 'preferredInstitution']));
+    }
+
+    public function store(Request $request)
+    {
+        // Validação
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'is_super_admin' => 'boolean',
+            'institutions' => 'array', // Array de IDs
+            'institutions.*' => 'exists:institutions,id', // Cada ID deve existir na tabela institutions
+            'accessible_dashboards' => 'array', // Array de IDs
+            'accessible_dashboards.*' => 'exists:dashboards,id', // Cada ID deve existir na tabela dashboards
+        ]);
+
+        $user = User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'is_super_admin' => $validatedData['is_super_admin'] ?? false,
+        ]);
+
+        // Sincronizar relações many-to-many
+        if (isset($validatedData['institutions'])) {
+            $user->institutions()->sync($validatedData['institutions']);
+        }
+        if (isset($validatedData['accessible_dashboards'])) {
+            $user->accessibleDashboards()->sync($validatedData['accessible_dashboards']);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Usuário criado com sucesso!');
     }
 
     /**

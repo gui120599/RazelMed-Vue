@@ -7,6 +7,7 @@ use App\Models\Institution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
 // Importe os Form Requests
 use App\Http\Requests\StoreDashboardRequest;
 use App\Http\Requests\UpdateDashboardRequest;
@@ -16,14 +17,28 @@ class DashboardController extends Controller
     public function __construct()
     {
         // Protege as ações de gerenciamento; index e show são acessíveis por usuários autenticados
-        $this->middleware(function ($request, $next) {
+        /*$this->middleware(function ($request, $next) {
             if (in_array($request->route()->getName(), ['dashboards.store', 'dashboards.update', 'dashboards.destroy'])) {
                 if (Gate::denies('manage-platform')) {
                     abort(403, 'Unauthorized action.');
                 }
             }
             return $next($request);
-        }); // Sem `except` aqui, o Gate dentro dos requests e no middleware cuida disso
+        }); // Sem `except` aqui, o Gate dentro dos requests e no middleware cuida disso*/
+    }
+
+    /**
+     * Display a listing of the dashboards for the admin panel.
+     */
+    public function indexAdmin(Request $request)
+    {
+        $dashboards = Dashboard::with('institution')->paginate(10);
+        $allInstitutions = Institution::all(); // <-- Adicione isso
+
+        return Inertia::render('Admin/Dashboards/Index', [
+            'dashboards' => $dashboards,
+            'allInstitutions' => $allInstitutions, // <-- Passe para a página
+        ]);
     }
 
     /**
@@ -32,7 +47,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        if (!Auth::check()) {
+        /*if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -55,7 +70,11 @@ class DashboardController extends Controller
             }
         }
 
-        return response()->json($dashboards);
+        return response()->json($dashboards);*/
+
+        // Certifique-se de que a relação 'institution' está sendo carregada
+        $dashboards = Dashboard::with('institution')->paginate(10); // Exemplo de paginação
+        return Inertia::render('Admin/Dashboards/Index', ['dashboards' => $dashboards]);
     }
 
     /**
@@ -85,8 +104,8 @@ class DashboardController extends Controller
         }
 
         $canAccessDashboard = $user->prefer_institution_id === $dashboard->institution_id &&
-                              $user->accessibleDashboards()->where('dashboard_id', $dashboard->id)->exists() &&
-                              $user->institutions()->where('institution_id', $user->prefer_institution_id)->exists();
+            $user->accessibleDashboards()->where('dashboard_id', $dashboard->id)->exists() &&
+            $user->institutions()->where('institution_id', $user->prefer_institution_id)->exists();
 
         if ($canAccessDashboard) {
             return response()->json($dashboard->load('institution'));

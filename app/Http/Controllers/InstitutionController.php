@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 // Importe os Form Requests
 use App\Http\Requests\StoreInstitutionRequest;
 use App\Http\Requests\UpdateInstitutionRequest;
+use Inertia\Inertia;
 // use App\Notifications\NewInstitutionCreatedNotification; // Se for usar
 
 class InstitutionController extends Controller
@@ -18,14 +19,27 @@ class InstitutionController extends Controller
     public function __construct()
     {
         // Protege as ações de gerenciamento; indexUsersInstitutions é público para usuários autenticados
-        $this->middleware(function ($request, $next) {
+       /* $this->middleware(function ($request, $next) {
             if (!in_array($request->route()->getName(), ['institutions.indexUsersInstitutions'])) {
                 if (Gate::denies('manage-platform')) {
                     abort(403, 'Unauthorized action.');
                 }
             }
             return $next($request);
-        });
+        });*/
+    }
+
+    /**
+     * Display a listing of the institutions for the admin panel.
+     */
+    public function indexAdmin(Request $request)
+    {
+        // Paginando as instituições para a tabela do admin
+        $institutions = Institution::paginate(10); // Exemplo: 10 instituições por página
+
+        return Inertia::render('Admin/Institutions/Index', [
+            'institutions' => $institutions,
+        ]);
     }
 
     /**
@@ -33,8 +47,13 @@ class InstitutionController extends Controller
      */
     public function index()
     {
-        $institutions = Institution::with(['users', 'dashboards'])->get();
-        return response()->json($institutions);
+        /*$institutions = Institution::with(['users', 'dashboards'])->get();
+        return response()->json($institutions);*/
+
+        // A princípio, não precisa carregar relações aqui, mas se quiser ver usuários/dashboards relacionados
+        // $institutions = Institution::with(['users', 'dashboards'])->paginate(10);
+        $institutions = Institution::paginate(10);
+        return Inertia::render('Admin/Institutions/Index', ['institutions' => $institutions]);
     }
 
     /**
@@ -51,7 +70,7 @@ class InstitutionController extends Controller
             $institution->save();
         }
 
-        return response()->json($institution, 201);
+        return redirect()->route('admin.institutions.index')->with('success','Instituição cadastrada com sucesso!');
     }
 
     /**
@@ -85,7 +104,7 @@ class InstitutionController extends Controller
             $institution->save();
         }
 
-        return response()->json($institution);
+        return redirect()->route('admin.institutions.index')->with('success','Instituição alterada com sucesso!');
     }
 
     /**
@@ -97,9 +116,9 @@ class InstitutionController extends Controller
         // if ($institution->users()->where('is_super_admin', true)->exists()) {
         //     return response()->json(['message' => 'Não é possível deletar uma instituição que contém Super Admins.'], 403);
         // }
-        
+
         $institution->delete();
-        return response()->json(null, 204);
+        return redirect()->route('admin.institutions.index')->with('success','Instituição deletada com sucesso!');
     }
 
     /**

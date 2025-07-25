@@ -13,7 +13,7 @@ class UpdateInstitutionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows('manage-platform'); // Apenas Super Admin pode atualizar instituições
+        return Gate::allows('manage-platform'); // Apenas Super Admin pode criar instituições
     }
 
     /**
@@ -23,14 +23,46 @@ class UpdateInstitutionRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Pega o ID da instituição da rota para ignorar na validação unique
-        $institutionId = $this->route('institution');
-
+        $institutionId = $this->route('institution'); // Pega o ID do cliente da rota
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('institutions')->ignore($institutionId)],
-            'cnpj' => ['nullable', 'string', 'max:18', Rule::unique('institutions')->ignore($institutionId)],
-            'profile_photo' => ['nullable', 'image', 'max:2048'],
-            'remove_profile_photo' => ['boolean'], // Para indicar se a foto deve ser removida
+            'name' => ['required', 'string', 'max:255', Rule::unique('institutions','name')->ignore($institutionId)->where(fn($query) => $query->whereNotNull('name'))],
+            'cnpj' => ['nullable', 'string', 'max:18', Rule::unique('institutions','cnpj')->ignore($institutionId)->where(fn($query) => $query->whereNotNull('cnpj'))],
+            'profile_photo' => ['nullable', 'image', 'max:2048'], // 2MB max
+        ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     * Este método é executado antes das regras de validação.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Limpar máscaras
+        $cnpj = preg_replace('/[^0-9]/', '', $this->cnpj);
+
+        // Converter strings vazias (após a limpeza) para NULL
+        $cnpj = $cnpj === '' ? null : $cnpj;
+
+        $this->merge([
+            'cnpj' => $cnpj,
+        ]);
+    }
+
+    /**
+     * Get custom messages for validation errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'O nome é obrigatório.',
+            'name.string' => 'O nome deve ser um texto.',
+            'name.unique' => 'Já existe uma insituição com esse nome, caso não encontre, verifique se a mesma esteja ativa.',
+            'name.max' => 'O nome não pode ter mais de :max caracteres.',
+            'cnpj.unique' => 'Este CNPJ já está cadastrado.',
+            'profile_photo.image' => 'O arquivo deve ser uma imagem.',
+            'profile_photo.max' => 'A imagem não pode ter mais de :max kilobytes.',
         ];
     }
 }

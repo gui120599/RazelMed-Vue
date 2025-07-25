@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InstitutionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -21,33 +22,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rota para mostrar um dashboard específico
     Route::get('/dashboard/{dashboard}', [DashboardController::class, 'show'])->name('dashboard.show');
 
-    // --- Rotas para o Super Admin ---
+    // --- Rotas para o Super Admin (Gerenciamento de CRUDS) ---
     Route::prefix('admin')->middleware('can:manage-platform')->group(function () {
+
         // Gerenciamento de Instituições
-        Route::get('/institutions', function () {
-            return Inertia::render('Admin/Institutions/Index'); // Sua página Vue para gerenciar instituições
-        })->name('admin.institutions.index');
-        // Você pode ter APIs para store/update/delete no seu api.php apontando para InstitutionController
+        Route::get('/institutions', [InstitutionController::class, 'indexAdmin'])->name('admin.institutions.index');
+        // Adicione aqui as rotas para criar, editar, deletar instituições via API
+        // Exemplo: Route::post('/institutions', [InstitutionController::class, 'store']);
 
         // Gerenciamento de Dashboards
-        Route::get('/dashboards', function () {
-            return Inertia::render('Admin/Dashboards/Index'); // Sua página Vue para gerenciar dashboards
-        })->name('admin.dashboards.index');
-        // APIs para store/update/delete de dashboards
+        Route::get('/dashboards', [DashboardController::class, 'indexAdmin'])->name('admin.dashboards.index');
+        // Exemplo: Route::post('/dashboards', [DashboardController::class, 'store']);
 
         // Gerenciamento de Usuários
-        Route::get('/users', function () {
-            return Inertia::render('Admin/Users/Index'); // Sua página Vue para gerenciar usuários
-        })->name('admin.users.index');
-        // APIs para update/delete de usuários
+        Route::get('/users', [UserController::class, 'indexAdmin'])->name('admin.users.index');
+        // Exemplo: Route::patch('/users/{user}', [UserController::class, 'update']);
+        // Exemplo: Route::delete('/users/{user}', [UserController::class, 'destroy']);
     });
 
-    // API Routes for CRUD operations (assuming you're doing Inertia with API for data)
-    // Make sure these routes are also protected by auth:sanctum if they are in api.php
-    Route::apiResource('institutions', InstitutionController::class);
-    Route::get('/user-institutions', [InstitutionController::class, 'indexUsersInstitutions']);
-    Route::apiResource('dashboards', DashboardController::class);
-    Route::apiResource('users', UserController::class)->except(['store']);
+    // --- Rotas API para as operações CRUD (sem prefíxo 'admin' para serem usadas pelos Dialogs) ---
+    // Estas são as rotas que seus modais de Create/Edit/Delete vão chamar
+    // Geralmente, estas usam Route::apiResource para o CRUD completo
+    Route::apiResource('institutions', InstitutionController::class)
+        ->only(['store', 'update', 'destroy']) // Define quais métodos são expostos
+        ->middleware('can:manage-platform'); // Proteja com a mesma permissão
+
+    Route::apiResource('dashboards', DashboardController::class)
+        ->only(['store', 'update', 'destroy'])
+        ->middleware('can:manage-platform');
+
+    Route::apiResource('users', UserController::class)
+        ->only(['update', 'destroy']) // Usuários não têm 'store' aqui, pois a criação é pelo registro
+        ->middleware('can:manage-platform');
 });
 
 require __DIR__ . '/settings.php';

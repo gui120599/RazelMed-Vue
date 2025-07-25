@@ -28,4 +28,39 @@ class StoreInstitutionRequest extends FormRequest
             'profile_photo' => ['nullable', 'image', 'max:2048'], // 2MB max
         ];
     }
+
+    /**
+     * Prepare the data for validation.
+     * Este método é executado antes das regras de validação.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Limpar máscaras
+        $cnpj = preg_replace('/[^0-9]/', '', $this->cnpj);
+
+        // Converter strings vazias (após a limpeza) para NULL
+        $cnpj = $cnpj === '' ? null : $cnpj;
+
+        $this->merge([
+            'cnpj' => $cnpj,
+        ]);
+    }
+
+    /**
+     * Get custom messages for validation errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'O nome é obrigatório.',
+            'name.string' => 'O nome deve ser um texto.',
+            'name.unique' => 'Já existe uma insituição com esse nome, caso não encontre, verifique se a mesma esteja ativa.',
+            'name.max' => 'O nome não pode ter mais de :max caracteres.',
+            'cnpj.unique' => 'Este CPF/CNPJ já está cadastrado.',
+            'profile_photo.image' => 'O arquivo deve ser uma imagem.',
+            'profile_photo.max' => 'A imagem não pode ter mais de :max kilobytes.',
+        ];
+    }
 }
