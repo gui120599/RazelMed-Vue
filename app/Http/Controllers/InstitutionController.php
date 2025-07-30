@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInstitutionRequest;
 use App\Http\Requests\UpdateInstitutionRequest;
 use App\Models\Institution;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -16,12 +18,15 @@ class InstitutionController extends Controller
     public function index()
     {
         // Recupera todos os institutiones, ordenados pelo nome e paginados
-        $institutions = Institution::orderBy('name')
-            ->get(); // Paginação de 10 institutiones por página
+        $institutions = Institution::with('users') 
+            ->orderBy('name')
+            ->get();
+        $allUsers = User::all(); // Carrega TODOS os usuários do sistema
 
         // Retorna a view 'Institutions/Index' do Vue com os dados dos institutiones
         return Inertia::render('institution/Index', [
             'institutions' => $institutions,
+             'allUsers' => $allUsers,
         ]);
     }
 
@@ -53,7 +58,7 @@ class InstitutionController extends Controller
 
         // Redireciona de volta para a lista de institutiones com uma mensagem de sucesso
         return redirect()->route('institutions.index')
-            ->with('success', 'Institutione cadastrado com sucesso!');
+            ->with('success', 'Instituição cadastrada com sucesso!');
     }
 
     /**
@@ -124,5 +129,29 @@ class InstitutionController extends Controller
         // Redireciona de volta para a lista de institutiones com uma mensagem de sucesso
         return redirect()->route('institutions.index')
             ->with('success', 'Institutione deletado com sucesso!');
+    }
+
+    // NOVO: Método para anexar um usuário a uma instituição
+    public function attachUser(Institution $institution, Request $request)
+    {
+        $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+        ]);
+
+        $institution->users()->syncWithoutDetaching([$request->user_id]);
+
+        return redirect()->back()->with('success', 'Usuário adicionado à instituição com sucesso!');
+    }
+
+    // NOVO: Método para desanexar um usuário de uma instituição
+    public function detachUser(Institution $institution, Request $request)
+    {
+        $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+        ]);
+
+        $institution->users()->detach($request->user_id);
+
+        return redirect()->back()->with('success', 'Usuário removido da instituição com sucesso!');
     }
 }

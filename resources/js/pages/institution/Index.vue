@@ -9,6 +9,8 @@ import InstitutionCreateDialog from './InstitutionCreateDialog.vue'; // Importe 
 import InstitutionEditDialog from './InstitutionEditDialog.vue'; // Importe o novo componente de dialog de edição
 // Importe as novas funções de formatação
 import { formatCpfCnpj, formatPhone } from '@/helpers/formatters'; // <--- Nova importação aqui!
+import { Edit, Delete, DeleteIcon, XIcon } from 'lucide-vue-next';
+import InstitutionUsersDialog from './InstitutionUsersDialog.vue';
 
 defineProps({
     // A prop agora é 'institutions' e terá a estrutura de paginação do Laravel
@@ -54,22 +56,27 @@ const breadcrumbs = [
                 <TableBody>
                     <TableRow v-for="institution in institutions" :key="institution.id">
                         <TableCell>
-                            <img v-if="institution.profile_photo_path" :src="`/storage/${institution.profile_photo_path}`"
-                                alt="Profile Photo" class="w-10 h-10 rounded-full object-cover" />
+                            <img v-if="institution.profile_photo_path"
+                                :src="`/storage/${institution.profile_photo_path}`" alt="Profile Photo"
+                                class="w-10 h-10 rounded-full object-cover" />
                             <div v-else
                                 class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
                                 No Photo</div>
                         </TableCell>
-                        <TableCell >{{ institution.name }}</TableCell>
+                        <TableCell>{{ institution.name }}</TableCell>
                         <TableCell class="sr-only md:not-sr-only">{{ institution.email || 'N/A' }}</TableCell>
                         <TableCell class="sr-only md:not-sr-only">
                             {{ formatPhone(institution.phone) }}
                         </TableCell>
                         <TableCell class="">{{ formatCpfCnpj(institution.cnpj) || 'N/A' }}</TableCell>
-                        <TableCell class="max-w-[200px] truncate sr-only lg:not-sr-only">{{ institution.address || 'N/A' }}</TableCell>
+                        <TableCell class="max-w-[200px] truncate sr-only lg:not-sr-only">{{ institution.address || 'N/A'
+                        }}</TableCell>
                         <TableCell class="space-x-2">
+                            <InstitutionUsersDialog :institution="institution" />
                             <InstitutionEditDialog :institution="institution" />
-                            <Button variant="destructive" @click="deleteInstitution(institution.id)">Delete</Button>
+                            <Button title="DELETAR" variant="destructive" @click="deleteInstitution(institution.id)">
+                                <XIcon />
+                            </Button>
                         </TableCell>
                     </TableRow>
                 </TableBody>

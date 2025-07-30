@@ -17,8 +17,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     Route::resource('institutions', InstitutionController::class);
-
+    Route::post('institutions/{institution}/users/attach', [InstitutionController::class, 'attachUser'])->name('institutions.users.attach');
+    Route::delete('institutions/{institution}/users/detach', [InstitutionController::class, 'detachUser'])->name('institutions.users.detach');
+    
     Route::resource('dashboards', DashboardController::class);
+    Route::post('dashboards/{dashboard}/users/attach', [DashboardController::class, 'attachUser'])->name('dashboards.users.attach');
+    Route::delete('dashboards/{dashboard}/users/detach', [DashboardController::class, 'detachUser'])->name('dashboards.users.detach');
 });
 
 

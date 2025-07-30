@@ -20,6 +20,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Edit } from 'lucide-vue-next';
 
 const props = defineProps({
     dashboard: { // Recebe o objeto dashboarde para edição
@@ -80,7 +81,7 @@ defineExpose({
 <template>
     <Dialog v-model:open="isDialogOpen">
         <DialogTrigger as-child>
-            <Button variant="default">Edit</Button>
+            <Button variant="default" title="ALTERAR"><Edit /></Button>
         </DialogTrigger>
         <DialogContent class="lg:min-w-[800px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>

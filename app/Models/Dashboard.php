@@ -24,4 +24,12 @@ class Dashboard extends Model
     {
         return $this->belongsTo(Institution::class);
     }
+
+    /**
+     * Os usuários que têm acesso a este dashboard.
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'dashboard_users', 'dashboard_id', 'user_id');
+    }
 }

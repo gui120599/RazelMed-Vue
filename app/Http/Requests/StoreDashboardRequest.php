@@ -11,7 +11,7 @@ class StoreDashboardRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,11 @@ class StoreDashboardRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
+         return [
+            'name' => ['required', 'string', 'max:255'],
+            'iframe_link' => ['nullable', 'url', 'max:2048'],
+            'institution_id' => ['required', 'exists:institutions,id'],
+            'icon' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

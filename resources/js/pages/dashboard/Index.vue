@@ -9,7 +9,8 @@ import DashboardCreateDialog from './DashboardCreateDialog.vue'; // Importe o no
 import DashboardEditDialog from './DashboardEditDialog.vue'; // Importe o novo componente de dialog de edição
 // Importe as novas funções de formatação
 import { formatCpfCnpj, formatPhone } from '@/helpers/formatters'; // <--- Nova importação aqui!
-import { Layers2 } from 'lucide-vue-next';
+import { Layers2, XIcon } from 'lucide-vue-next';
+import DashboardUsersDialog from './DashboardUsersDialog.vue';
 
 defineProps({
     // A prop agora é 'dashboards' e terá a estrutura de paginação do Laravel
@@ -56,13 +57,30 @@ const breadcrumbs = [
                 </TableHeader>
                 <TableBody>
                     <TableRow v-for="dashboard in dashboards" :key="dashboard.id">
-                        <TableCell class="sr-only lg:not-sr-only"><component :is="Layers2" /></TableCell>
-                        <TableCell>{{ dashboard.name }}</TableCell>
+                        <TableCell class="sr-only lg:not-sr-only">
+                            <component :is="Layers2" />
+                        </TableCell>
+                        <TableCell>
+                            <Link :href="route('dashboards.show', dashboard.id)" class="text-blue-600 hover:underline">
+                            {{ dashboard.name }}
+                            </Link>
+                        </TableCell>
                         <TableCell class="sr-only lg:not-sr-only">{{ dashboard.iframe_link || 'N/A' }}</TableCell>
-                        <TableCell>{{ dashboard.institution.name || 'N/A' }}</TableCell>
+                        <TableCell>
+                            <img v-if="dashboard.institution.profile_photo_path"
+                                :src="`/storage/${dashboard.institution.profile_photo_path}`"
+                                :alt="`${dashboard.institution.name || 'Instituição'}`"
+                                class="w-10 h-10 rounded-full object-cover" />
+                            <div v-else
+                                class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                                No Photo</div>
+                        </TableCell>
                         <TableCell class="space-x-2">
+                            <DashboardUsersDialog :dashboard="dashboard" :institutions="institutions" />
                             <DashboardEditDialog :dashboard="dashboard" :institutions="institutions" />
-                            <Button variant="destructive" @click="deleteDashboard(dashboard.id)">Delete</Button>
+                            <Button variant="destructive" @click="deleteDashboard(dashboard.id)">
+                                <XIcon />
+                            </Button>
                         </TableCell>
                     </TableRow>
                 </TableBody>

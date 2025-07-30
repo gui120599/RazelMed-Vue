@@ -4,9 +4,43 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Building2, Folder, Headset, LayoutDashboard, LayoutGrid, Package, User } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { useSessionStorage } from '@vueuse/core';
+
+// --- Tipos de Dados Dinâmicos (já definidos, apenas para clareza) ---
+interface DashboardItem {
+    id: number;
+    name: string;
+    iframe_link: string;
+    icon?: string;
+    institution_id: number;
+}
+
+interface InstitutionItem {
+    id: number;
+    name: string;
+    cnpj?: string;
+    profile_photo_path?: string;
+    // Note: 'dashboards' aqui pode não ser preenchido diretamente do Inertia,
+    // mas sim construído no frontend a partir de accessible_dashboards.
+    dashboards?: DashboardItem[];
+}
+
+interface UserProps {
+    id: number;
+    name: string;
+    email: string;
+    is_super_admin: boolean;
+    prefer_institution_id?: number;
+}
+
+// Obtenha os props da página, incluindo o usuário autenticado
+const page = usePage();
+// Usar `as unknown as UserProps` é um bom truque, mas o ideal é que `page.props.auth.user`
+// já seja tipado corretamente no seu projeto (ex: via um d.ts para props Inertia).
+const user = page.props.auth.user as unknown as UserProps;
 
 const mainNavItems: NavItem[] = [
     {
@@ -54,7 +88,7 @@ const footerNavItems: NavItem[] = [
 
         <SidebarContent>
             <NavMain title="Menu" :items="mainNavItems" />
-            <NavMain title="Administração" :items="adminNavItems" />
+            <NavMain v-if="user.is_super_admin" title="Administração" :items="adminNavItems" />
             
         </SidebarContent>
 

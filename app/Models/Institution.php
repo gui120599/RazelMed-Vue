@@ -35,4 +35,10 @@ class Institution extends Model
     {
         return $this->hasMany(Dashboard::class);
     }
+
+    // NOVO: Relacionamento com usuários
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'institution_users', 'institution_id', 'user_id');
+    }
 }

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/InputError.vue';
 import { Checkbox } from '@/components/ui/checkbox'; // Para a opção de remover foto
+import { Edit } from 'lucide-vue-next';
 
 import {
     Dialog,
@@ -101,7 +102,7 @@ defineExpose({
 <template>
     <Dialog v-model:open="isDialogOpen">
         <DialogTrigger as-child>
-            <Button variant="default">Edit</Button>
+            <Button variant="default" title="EDITAR"><Edit/></Button>
         </DialogTrigger>
         <DialogContent class="lg:min-w-[800px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
