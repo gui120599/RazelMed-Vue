@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
 
         // Gerar 20 clientes
-        $institution = Institution::factory()->count(5)->create(); // Gera 5 clientes com dados fictícios
+       /* $institution = Institution::factory()->count(5)->create(); // Gera 5 clientes com dados fictícios
 
         User::factory()->count(5)->create(); // Gera 5 clientes com dados fictícios
 
@@ -27,7 +27,13 @@ class DatabaseSeeder extends Seeder
             ->state(function () use ($institution) {
                 return ['institution_id' => $institution->random()->id];
             })
-            ->create();
+            ->create();*/
+             
+            
+            $this->call([
+            SuperAdmin::class, // Adicione esta linha para chamar seu SuperAdminSeeder
+            // Outros seeders que você possa ter, como InstitutionSeeder, etc.
+        ]);
 
     }
 }

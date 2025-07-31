@@ -8,6 +8,7 @@ use App\Models\Dashboard;
 use App\Models\Institution;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -49,18 +50,33 @@ class DashboardController extends Controller
      */
     public function show(Dashboard $dashboard)
     {
-        // Certifique-se de que o usuário tem permissão para ver este dashboard.
-        // Você pode implementar uma lógica aqui para verificar o acesso.
-        // Exemplo:
-        // if (!auth()->user()->dashboards->contains($dashboard)) {
-        //     abort(403); // Ação não autorizada
-        // }
+        $user = Auth::user();
 
-        return Inertia::render('dashboard/Show', [
-            'dashboard' => $dashboard,
-            // Passe aqui todos os dados que o dashboard precisa para ser renderizado.
-            // Por exemplo, dados de gráficos, tabelas, etc.
-        ]);
+        // Carrega o relacionamento 'institution' para o dashboard
+        $dashboard->load('institution');
+
+        // 1. Defina a condição de acesso
+        $hasAccess = false;
+
+        // Se o usuário for super admin, ele tem acesso total
+        if ($user && $user->isSuperAdmin()) {
+            $hasAccess = true;
+        }
+
+        // Se não for super admin, verifique se ele tem acesso ao dashboard E à instituição
+        elseif ($user && $user->dashboards->contains($dashboard) && $user->institutions->contains($dashboard->institution)) {
+            $hasAccess = true;
+        }
+
+        // 2. Verifique se a condição foi atendida
+        if ($hasAccess) {
+            return Inertia::render('dashboard/Show', [
+                'dashboard' => $dashboard,
+            ]);
+        }
+
+        // 3. Se não tiver permissão, retorne um erro 403
+        abort(403, 'Usuário sem permissão de acesso.');
     }
 
     /**
@@ -78,7 +94,7 @@ class DashboardController extends Controller
     {
         $data = $request->validated();
 
-        Dashboard::update($data);
+        $dashboard->update($data);
 
         return redirect()->route('dashboards.index')->with('success', 'Dashboard atualizado com sucesso!');
     }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('institutions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('reduced_name');
             $table->string('email')->nullable()->unique();
             $table->string('phone')->nullable();
             $table->string('cnpj')->nullable()->unique();

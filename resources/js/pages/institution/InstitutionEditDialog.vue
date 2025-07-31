@@ -34,6 +34,7 @@ const isDialogOpen = ref(false);
 const form = useForm({
     _method: 'put', // Importante para o Laravel interpretar como PUT
     name: props.institution.name,
+    reduced_name: props.institution.reduced_name,
     email: props.institution.email,
     phone: props.institution.phone,
     cnpj: props.institution.cnpj,
@@ -47,6 +48,7 @@ const form = useForm({
 // Isso é útil se o mesmo dialog for reutilizado para diferentes institutiones sem recarregar a página.
 watch(() => props.institution, (newInstitution) => {
     form.name = newInstitution.name;
+    form.reduced_name = newInstitution.reduced_name;
     form.email = newInstitution.email;
     form.phone = newInstitution.phone;
     form.cnpj = newInstitution.cnpj;
@@ -127,10 +129,15 @@ defineExpose({
                             </div>
                         </div>
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="grid lg:col-span-2 w-full gap-2">
+                            <div class="grid lg:col-span-3 w-full gap-2">
                                 <Label for="name">Name</Label>
                                 <Input id="name" autocomplete="off" v-model="form.name" />
                                 <InputError :message="form.errors.name" />
+                            </div>
+                            <div class="grid lg:col-span-2 w-full gap-2">
+                                <Label for="reduced_name">Nome Reduzido</Label>
+                                <Input id="reduced_name" autocomplete="off" v-model="form.reduced_name" />
+                                <InputError :message="form.errors.reduced_name" />
                             </div>
                             <div class="grid lg:col-span-1 w-full gap-2">
                                 <Label for="cnpj">CPF/CNPJ</Label>

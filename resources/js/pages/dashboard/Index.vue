@@ -48,24 +48,14 @@ const breadcrumbs = [
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead class="sr-only lg:not-sr-only">Icon</TableHead>
+                        <TableHead>Institution</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead class="sr-only lg:not-sr-only">Iframe Link</TableHead>
-                        <TableHead>Institution</TableHead>
                         <TableHead class="w-[120px]">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     <TableRow v-for="dashboard in dashboards" :key="dashboard.id">
-                        <TableCell class="sr-only lg:not-sr-only">
-                            <component :is="Layers2" />
-                        </TableCell>
-                        <TableCell>
-                            <Link :href="route('dashboards.show', dashboard.id)" class="text-blue-600 hover:underline">
-                            {{ dashboard.name }}
-                            </Link>
-                        </TableCell>
-                        <TableCell class="sr-only lg:not-sr-only">{{ dashboard.iframe_link || 'N/A' }}</TableCell>
                         <TableCell>
                             <img v-if="dashboard.institution.profile_photo_path"
                                 :src="`/storage/${dashboard.institution.profile_photo_path}`"
@@ -75,6 +65,12 @@ const breadcrumbs = [
                                 class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
                                 No Photo</div>
                         </TableCell>
+                        <TableCell>
+                            <Link :href="route('dashboards.show', dashboard.id)" class="text-blue-600 hover:underline">
+                            {{ dashboard.name }} - {{ dashboard.institution.reduced_name }}
+                            </Link>
+                        </TableCell>
+                        <TableCell class="sr-only lg:not-sr-only">{{ dashboard.iframe_link || 'N/A' }}</TableCell>
                         <TableCell class="space-x-2">
                             <DashboardUsersDialog :dashboard="dashboard" :institutions="institutions" />
                             <DashboardEditDialog :dashboard="dashboard" :institutions="institutions" />

@@ -26,6 +26,7 @@ const profilePhotoPreviewUrl = ref(null);
 
 const form = useForm({
     name: '',
+    reduced_name: '',
     email: '',
     phone: '',
     cnpj: '',
@@ -115,10 +116,15 @@ defineExpose({
                             </div>
                         </div>
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="grid lg:col-span-2 w-full gap-2">
+                            <div class="grid lg:col-span-3 w-full gap-2">
                                 <Label for="name">Name</Label>
                                 <Input id="name" autocomplete="off" v-model="form.name" />
                                 <InputError :message="form.errors.name" />
+                            </div>
+                            <div class="grid lg:col-span-2 w-full gap-2">
+                                <Label for="reduced_name">Nome Reduzido</Label>
+                                <Input id="reduced_name" autocomplete="off" v-model="form.reduced_name" />
+                                <InputError :message="form.errors.reduced_name" />
                             </div>
                             <div class="grid lg:col-span-1 w-full gap-2">
                                 <Label for="cnpj">CPF/CNPJ</Label>
