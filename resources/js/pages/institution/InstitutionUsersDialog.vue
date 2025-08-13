@@ -200,9 +200,9 @@ defineExpose({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead class="text-right">Ação</TableHead>
                                     <TableHead>Nome</TableHead>
                                     <TableHead>Email</TableHead>
-                                    <TableHead class="text-right">Ação</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -212,14 +212,14 @@ defineExpose({
                                     </TableCell>
                                 </TableRow>
                                 <TableRow v-for="user in usersWithoutAccess" :key="user.id">
-                                    <TableCell>{{ user.name }}</TableCell>
-                                    <TableCell>{{ user.email }}</TableCell>
-                                    <TableCell class="text-right">
+                                     <TableCell class="text-right">
                                         <Button variant="outline" size="sm" @click="attachUser(user.id)"
                                             :disabled="form.processing">
                                             <UserPlus class="h-4 w-4 mr-1" />
                                         </Button>
                                     </TableCell>
+                                    <TableCell>{{ user.name }}</TableCell>
+                                    <TableCell>{{ user.email }}</TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>

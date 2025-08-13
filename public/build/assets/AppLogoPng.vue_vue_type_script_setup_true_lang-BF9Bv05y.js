@@ -1,0 +1,1 @@
+import{d as s,j as a,o,m as r}from"./app-Ok4sUdtS.js";const m=s({inheritAttrs:!1,__name:"AppLogoPng",props:{className:{}},setup(n){return(e,t)=>(o(),a("img",r({src:"/LOGO-RAZELMED.png",alt:"Logo Razelmed",class:e.className},e.$attrs),null,16))}});export{m as _};
