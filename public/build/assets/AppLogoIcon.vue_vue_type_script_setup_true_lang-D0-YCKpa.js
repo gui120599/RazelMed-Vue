@@ -1,0 +1,1 @@
+import{d as s,j as o,o as a,m as r}from"./app-DOt-nZF6.js";const m=s({inheritAttrs:!1,__name:"AppLogoIcon",props:{className:{}},setup(n){return(e,t)=>(a(),o("img",r({src:"/favicon.ico",alt:"Logo Razelmed",class:e.className},e.$attrs),null,16))}});export{m as _};
